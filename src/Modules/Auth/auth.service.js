@@ -6,6 +6,7 @@ import { BadRequestException, ConflictException, ForbiddenException, NotFoundExc
 import { SuccessResponse } from "../../Utils/Response/success.response.js"
 import { createRevokeToken, redis_delete, redis_get, redis_set } from "../../DB/redis.service.js";
 import { OAuth2Client } from "google-auth-library";
+import { sendEmail } from "../../Utils/sendEmail.js";
 
 export const userSignup = async(req, res)=>{
     let {name , email, password, uniqueAccName, phone} = req.body;
@@ -20,8 +21,6 @@ export const userSignup = async(req, res)=>{
 
     let otp = Math.floor(100000 + Math.random() * 900000);
     
-    // SEND EMAIL WITH OTP
-    
     let newUser = await UserModel.create({
         name: name,
         email: email,
@@ -32,9 +31,17 @@ export const userSignup = async(req, res)=>{
     let hashedOTP = await hashData(otp.toString());
     await redis_set({key:`otp:${newUser._id}`, value: hashedOTP, ttl: 60*2});
 
+    // ASSIGNMENT 12
+    await sendEmail({
+        to: newUser.email,
+        subject: "Verify your account",
+        html: `<h2>Hello ${newUser.name}</h2>
+               <h3> Welocme to our app, kindly verify your account with OTP: ${otp}</h3>`
+    });
+
     
     SuccessResponse({
-        res, message:"User Signedup Successfully!!", statusCode:201, data: {User: newUser, OTP: otp}
+        res, message:"User Signedup Successfully!!", statusCode:201, data: newUser
     });
 };
 
