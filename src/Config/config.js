@@ -17,7 +17,8 @@ const env = {
     serverUri: process.env.SERVER_URI,
     redisURL: process.env.REDIS_URL,
     googleAppPassword: process.env.GOOGLE_APP_PASSWORD,
-    googleAccountEmail: process.env.GOOGLE_ACCOUNT_EMAIL
+    googleAccountEmail: process.env.GOOGLE_ACCOUNT_EMAIL,
+    corsWhiteList : process.env.CORS_WHITE_LIST,
 };
 
 
