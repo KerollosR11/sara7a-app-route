@@ -18,5 +18,7 @@ router.get("/get-user-data", auth, userServices.getUserData);
 
 router.put("/update-user",  auth, uploading().single("coverImage"), validation(updateSchema), userServices.updateUser);
 
+router.get("/get-user-data-by-UName/:uniqueAccName", auth, userServices.getUserDataByUniqueAccName);
+
 
 export default router;
