@@ -7,12 +7,27 @@ import { SuccessResponse } from "./Utils/Response/success.response.js";
 import {fileURLToPath} from "url";
 import { redisConnectionDB } from "./DB/redisDB.js";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
+
+//ASSIGNMENT 13
+// RATE LIMITER
+const limiter = rateLimit({
+	windowMs: 2 * 60 * 1000, // 2 minutes  (millsec)
+	limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    // standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message:"Too many requests, Try again later",
+    statusCode: 429
+});
 
 const bootstrap = async (app, express)=>{
     app.use(express.json());
 
     await databaseConnection();
     await redisConnectionDB();
+    
+    // Apply the rate limiting middleware to all requests.
+    app.use(limiter);
 
     app.use(cors({
         origin: "*",
@@ -27,6 +42,7 @@ const bootstrap = async (app, express)=>{
     const __dirname = path.dirname(__filename);
     app.use("/uploads", express.static(path.join(__dirname, '../uploads')));
     // End of File upload
+    
 
     app.get("/check-health", (req, res)=>{
         res.json("Server is running now");
