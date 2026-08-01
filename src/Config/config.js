@@ -15,7 +15,9 @@ const env = {
     userRefToken : process.env.USER_REFRESH_TOKEN,
     dbConn : process.env.DB_CONN,
     serverUri: process.env.SERVER_URI,
-    redisURL: process.env.REDIS_URL
+    redisURL: process.env.REDIS_URL,
+    googleAppPassword: process.env.GOOGLE_APP_PASSWORD,
+    googleAccountEmail: process.env.GOOGLE_ACCOUNT_EMAIL
 };
 
 
