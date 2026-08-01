@@ -4,7 +4,7 @@ import joi from "joi";
 
 export const signupSchema = joi.object({
     name : joi.string().min(3).max(25).pattern(/^[a-zA-Z ]+$/).required(),
-    email: joi.string().email().required(),
+    email: joi.string().required().email(),
     password: joi.string().required(),
     uniqueAccName: joi.string().required(),
     phone: joi.string().optional()
