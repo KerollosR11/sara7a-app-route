@@ -64,3 +64,15 @@ export const updateUser = async(req, res)=>{
 
     SuccessResponse({res, statusCode:200, message:"User updated successfully!", data: updateUserData});
 };
+
+export const getUserDataByUniqueAccName = async(req, res)=>{
+
+    const {uniqueAccName} = req.params;
+    let user = await UserModel.findOne({uniqueAccName: uniqueAccName});
+    if(!user){
+        NotFoundException({message: "User not found!"});
+    }
+
+    SuccessResponse({res, statusCode:200, message:"User fetched successfully!", data: user});
+
+};
