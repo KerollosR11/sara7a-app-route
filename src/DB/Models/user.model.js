@@ -49,7 +49,25 @@ const userSchema = new Schema(
             type: String,
             enum: ["google", "system"],
             default: "system"
-        }
+        },
+        freezedBy:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        freezedAt: {
+            type: Date
+        },
+        freezedByRole: {
+            type: Number,
+            enum: [0, 1]
+        },
+        restoredBy:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        restoredAt: {
+            type: Date
+        },
     },
 
     // Options
