@@ -24,23 +24,7 @@ export const updateSchema = joi.object({
     phone: joi.string().optional()
 });
 
-export const freezeSchema = joi.object({
-    params : joi.object({
-        userId: joi.string().custom((value, helper)=>{
-            return (Types.ObjectId.isValid(value) || helper.message("invalid ObjectId format"))
-        })
-    })
-});
-
-export const restoreSchema = joi.object({
-    params : joi.object({
-        userId: joi.string().custom((value, helper)=>{
-            return (Types.ObjectId.isValid(value) || helper.message("invalid ObjectId format"))
-        })
-    })
-});
-
-export const hardDeleteSchema = joi.object({
+export const ObjectIdSchema = joi.object({
     params : joi.object({
         userId: joi.string().custom((value, helper)=>{
             return (Types.ObjectId.isValid(value) || helper.message("invalid ObjectId format"))
