@@ -7,14 +7,26 @@ const messageSchema = new Schema(
     {
         content: {
             type: String,
-            required: true
+            required: true,
+            minLength: [1, "Message must be at least 1 character"],
+            maxLength: [500, "Message cannot exceed 500 characters"],
+            trim: true
         },
         image: {
             type: String
         },
         receiverId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
+            ref: "User",
+            required: true
+        },
+        isRead: {
+            type: Boolean,
+            default: false
+        },
+        isFavorite: {
+            type: Boolean,
+            default: false
         },
     },
 
@@ -23,6 +35,8 @@ const messageSchema = new Schema(
         timestamps: true
     }
 );
+
+messageSchema.index({receiverId: 1});
 
 
 const MessageModel = mongoose.model("Message", messageSchema);
