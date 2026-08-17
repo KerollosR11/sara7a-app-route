@@ -1,4 +1,5 @@
 import joi from "joi";
+import { Types } from "mongoose";
 
 // ASSIGNMENT 11
 
@@ -21,4 +22,28 @@ export const updateSchema = joi.object({
     newPassword: joi.string().optional(),
     uniqueAccName: joi.string().optional(),
     phone: joi.string().optional()
+});
+
+export const freezeSchema = joi.object({
+    params : joi.object({
+        userId: joi.string().custom((value, helper)=>{
+            return (Types.ObjectId.isValid(value) || helper.message("invalid ObjectId format"))
+        })
+    })
+});
+
+export const restoreSchema = joi.object({
+    params : joi.object({
+        userId: joi.string().custom((value, helper)=>{
+            return (Types.ObjectId.isValid(value) || helper.message("invalid ObjectId format"))
+        })
+    })
+});
+
+export const hardDeleteSchema = joi.object({
+    params : joi.object({
+        userId: joi.string().custom((value, helper)=>{
+            return (Types.ObjectId.isValid(value) || helper.message("invalid ObjectId format"))
+        })
+    })
 });
