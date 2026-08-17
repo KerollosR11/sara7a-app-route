@@ -7,21 +7,11 @@ import { SuccessResponse } from "./Utils/Response/success.response.js";
 import {fileURLToPath} from "url";
 import { redisConnectionDB } from "./DB/redisDB.js";
 import cors from "cors";
-import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import morgan from "morgan";
-import { attachRouterWithLogger } from "./Utils/Loggers/morgan.logger.js";
+import { limiter } from "./Utils/rateLimitter.js";
+import { logStream } from "./Utils/Loggers/morgan.logger.js";
 
-//ASSIGNMENT 13
-// RATE LIMITER
-const limiter = rateLimit({
-	windowMs: 2 * 60 * 1000, // 2 minutes  (millsec)
-	limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-    // standardHeaders: "draft-8",
-    legacyHeaders: false,
-    message:"Too many requests, Try again later",
-    statusCode: 429
-});
 
 const bootstrap = async (app, express)=>{
     app.use(express.json());
@@ -33,7 +23,7 @@ const bootstrap = async (app, express)=>{
     app.use(helmet());
 
     // for requests logging logs and store it
-    app.use(morgan("combined"));
+    app.use(morgan("combined", {stream: logStream}));
     
     // Apply the rate limiting middleware to all requests.
     app.use(limiter);
@@ -42,7 +32,7 @@ const bootstrap = async (app, express)=>{
         origin: "*",
     }))
 
-    attachRouterWithLogger(app, "/api/v1/auth", authRouter, "access.log");
+    // attachRouterWithLogger(app, "/api/v1/auth", authRouter, "access.log");
     
     app.use("/api/v1/auth", authRouter);
     app.use("/api/v1/user", userRouter);
@@ -53,20 +43,10 @@ const bootstrap = async (app, express)=>{
     const __dirname = path.dirname(__filename);
     app.use("/uploads", express.static(path.join(__dirname, '../uploads')));
     // End of File upload
-    
 
     app.get("/check-health", (req, res)=>{
         res.json("Server is running now");
     });
-
-    app.get("/test", (req, res)=>{
-        SuccessResponse({
-            res,
-            message: "Done from test",
-            statusCode: 200
-        });
-    });
-
 
     app.all("{*dummy}", (req, res)=>{
         res.status(404).json({message: "Page not found!"});
@@ -74,8 +54,6 @@ const bootstrap = async (app, express)=>{
 
     // Global error handler
     app.use(globalHandlingError);
-    
-
 };
 
 export default bootstrap;
