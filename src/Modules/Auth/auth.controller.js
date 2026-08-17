@@ -23,6 +23,12 @@ router.post("/logout", auth, authServices.logout);
 
 router.post("/signup/gmail", authServices.signupMail);
 
+router.post("/forget-password", authServices.forgetPassword);
+
+router.post("/reset-password", authServices.resetPassword);
+
+
+
 
 
 export default router;
