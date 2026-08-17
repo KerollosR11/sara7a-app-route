@@ -3,7 +3,7 @@ import { SuccessResponse } from "../../Utils/Response/success.response.js";
 import * as userServices from "./user.service.js";
 import { auth } from "../../Middlewares/Auth/auth.js";
 import { validation } from "../../Middlewares/validation.js";
-import { freezeSchema, hardDeleteSchema, restoreSchema, updateSchema } from "../Auth/auth.validation.js";
+import { ObjectIdSchema, updateSchema } from "../Auth/auth.validation.js";
 import { uploading } from "../../Middlewares/multer.js";
 
 const router = Router();
@@ -20,11 +20,11 @@ router.put("/update-user",  auth, uploading().single("coverImage"), validation(u
 
 router.get("/get-user-data-by-UName/:uniqueAccName", auth, userServices.getUserDataByUniqueAccName);
 
-router.patch("{/:userId}/freeze-account",  auth, validation(freezeSchema), userServices.freezeAccount);
+router.patch("{/:userId}/freeze-account",  auth, validation(ObjectIdSchema), userServices.freezeAccount);
 
-router.patch("{/:userId}/restore-account",  auth, validation(restoreSchema), userServices.restoreAccount);
+router.patch("{/:userId}/restore-account",  auth, validation(ObjectIdSchema), userServices.restoreAccount);
 
-router.delete("/:userId/delete-account",  auth, validation(hardDeleteSchema), userServices.hardDelete);
+router.delete("/:userId/delete-account",  auth, validation(ObjectIdSchema), userServices.hardDelete);
 
 
 export default router;
