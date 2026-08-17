@@ -7,6 +7,7 @@ import { SuccessResponse } from "../../Utils/Response/success.response.js"
 import { createRevokeToken, redis_delete, redis_get, redis_set } from "../../DB/redis.service.js";
 import { OAuth2Client } from "google-auth-library";
 import { sendEmail } from "../../Utils/sendEmail.js";
+import { generateOTP, hashOTP } from "../../Utils/generateOTP.js";
 
 export const userSignup = async(req, res)=>{
     let {name , email, password, uniqueAccName, phone} = req.body;
@@ -141,5 +142,74 @@ export const signupMail = async(req, res)=>{
     } catch (error) {
         BadRequestException({message:"Something went wrong!!", extra: error.message})
     }
+};
+
+export const forgetPassword = async(req, res)=>{
+
+    const {email} = req.body;
+    const newOTP = generateOTP();
+    const hashedOTP = await hashOTP(newOTP);
+
+    let user = await UserModel.findOne(
+        {
+            email:email, 
+            isVerified :{$exists: true}, 
+            provider: "system"
+        }
+    );
+
+    await redis_set({key: `forgetPasswordOTP:${user._id}`, value: hashedOTP, ttl:60*2});
+
+    if(!user){
+        NotFoundException({message: "User Not found!"});
+    }
+
+    await sendEmail({
+        to: user.email,
+        subject: "Reset your Password",
+        html: `<h2>Hello ${user.name}</h2>
+               <h3> Welocme to our app, kindly reset your account password with OTP: ${newOTP}</h3>`
+    });
+
+    SuccessResponse({res, statusCode:200, message:"User fetched successfully!", data: user});
+};
+
+export const resetPassword = async(req, res)=>{
+
+    const {email, otp, newPassword} = req.body;
+
+    let user = await UserModel.findOne(
+        {
+            email:email, 
+            isVerified :{$exists: true}, 
+            provider: "system"
+        }
+    );
+
+    if(!user){
+        NotFoundException({message: "User Not found!"});
+    }
+
+    let hashedOTP = await redis_get(`forgetPasswordOTP:${user._id}`);
+    let isValidOTP = await verifyData(otp, hashedOTP);
+    if(!isValidOTP){
+        BadRequestException({message: "Invalid OTP, Try again later"});
+    }
+    
+    let newHashPassword = await hashData(newPassword);
+    user.password = newHashPassword;
+    await user.save();
+    await redis_delete(`forgetPasswordOTP:${user._id}`);
+
+    await sendEmail({
+        to: user.email,
+        subject: "Your Password reset successfully",
+        html: `<h2>Hello ${user.name}</h2>
+               <h3> We want to let you know that your password has changed successfully</h3>
+               <h3>If it's not you, please contact us via support email</h3>
+               `
+    });
+
+    SuccessResponse({res, statusCode:200, message:"User password changed successfully!", data: user});
 };
 
