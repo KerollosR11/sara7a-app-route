@@ -14,3 +14,8 @@ export function attachRouterWithLogger(app, routerPath, router, logFileName){
     app.use(routerPath, morgan("combined", {stream: logStream}), router)
 
 }
+
+export const logStream = fs.createWriteStream(
+    path.resolve(__dirname, "./src/Loggers/access.log"),
+    { flags: "a" }
+);
