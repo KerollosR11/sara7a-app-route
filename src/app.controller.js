@@ -8,6 +8,9 @@ import {fileURLToPath} from "url";
 import { redisConnectionDB } from "./DB/redisDB.js";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import morgan from "morgan";
+import { attachRouterWithLogger } from "./Utils/Loggers/morgan.logger.js";
 
 //ASSIGNMENT 13
 // RATE LIMITER
@@ -25,6 +28,12 @@ const bootstrap = async (app, express)=>{
 
     await databaseConnection();
     await redisConnectionDB();
+
+    // package for security and prevent attacks and also hide some sensitive headers from response such as developing platform (express) in header: x-powered 
+    app.use(helmet());
+
+    // for requests logging logs and store it
+    app.use(morgan("combined"));
     
     // Apply the rate limiting middleware to all requests.
     app.use(limiter);
@@ -32,6 +41,8 @@ const bootstrap = async (app, express)=>{
     app.use(cors({
         origin: "*",
     }))
+
+    attachRouterWithLogger(app, "/api/v1/auth", authRouter, "access.log");
     
     app.use("/api/v1/auth", authRouter);
     app.use("/api/v1/user", userRouter);
